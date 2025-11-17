@@ -1,26 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import Hero from './components/Hero'
+import ProjectForm from './components/ProjectForm'
+import MemeCreator from './components/MemeCreator'
+import Marketplace from './components/Marketplace'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [projects, setProjects] = useState([])
+  const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+
+  const loadProjects = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/api/projects`)
+      const data = await res.json()
+      setProjects(data)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  useEffect(() => { loadProjects() }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <Hero />
+
+      <section className="-mt-12 relative z-20">
+        <div className="container mx-auto px-6 md:px-10">
+          <div className="grid md:grid-cols-2 gap-6">
+            <ProjectForm onCreated={loadProjects} />
+            <MemeCreator projects={projects} onCreated={() => {}} />
+          </div>
         </div>
-      </div>
+      </section>
+
+      <Marketplace />
+
+      <footer className="py-10 text-center text-sm text-gray-500">
+        Built for creators. Tip: set VITE_BACKEND_URL to connect your API.
+      </footer>
     </div>
   )
 }
